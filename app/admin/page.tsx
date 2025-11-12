@@ -1,4 +1,8 @@
+'use client';
+
 import OracleMonitor from './components/OracleMonitor';
+import { PermissionGuard, Permission, AuthorityBadge } from './components/PermissionGuard';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function AdminPage() {
   return (
@@ -8,10 +12,11 @@ export default function AdminPage() {
           <div>
             <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
             <p className="text-gray-400 mt-2">Exchange Management & Monitoring</p>
+            <div className="mt-3">
+              <AuthorityBadge />
+            </div>
           </div>
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-            Connect Wallet
-          </button>
+          <WalletMultiButton />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -60,48 +65,50 @@ export default function AdminPage() {
             </button>
           </div>
 
-          {/* Risk Parameters */}
+          {/* Risk Parameters - Governance Only */}
           <div className="lg:col-span-2 bg-gray-800 border border-gray-700 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Risk Parameters</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Initial Margin Ratio (%)</label>
-                  <input
-                    type="number"
-                    defaultValue="10"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                  />
+            <PermissionGuard requiredPermission={Permission.GOVERNANCE}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Initial Margin Ratio (%)</label>
+                    <input
+                      type="number"
+                      defaultValue="10"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Maintenance Margin Ratio (%)</label>
+                    <input
+                      type="number"
+                      defaultValue="5"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Liquidation Band (bps)</label>
+                    <input
+                      type="number"
+                      defaultValue="200"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">Max Oracle Staleness (s)</label>
+                    <input
+                      type="number"
+                      defaultValue="60"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Maintenance Margin Ratio (%)</label>
-                  <input
-                    type="number"
-                    defaultValue="5"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Liquidation Band (bps)</label>
-                  <input
-                    type="number"
-                    defaultValue="200"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Max Oracle Staleness (s)</label>
-                  <input
-                    type="number"
-                    defaultValue="60"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                  />
-                </div>
+                <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">
+                  Update Parameters
+                </button>
               </div>
-              <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">
-                Update Parameters
-              </button>
-            </div>
+            </PermissionGuard>
           </div>
 
           {/* Fee Configuration */}
@@ -163,28 +170,32 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Oracle Monitor */}
+          {/* Oracle Monitor - Governance Only */}
           <div className="lg:col-span-3 bg-gray-800 border border-gray-700 rounded-lg p-6">
-            <OracleMonitor />
+            <PermissionGuard requiredPermission={Permission.GOVERNANCE}>
+              <OracleMonitor />
+            </PermissionGuard>
           </div>
 
-          {/* Circuit Breakers */}
+          {/* Circuit Breakers - Governance Only */}
           <div className="lg:col-span-3 bg-gray-800 border border-gray-700 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Emergency Controls</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="px-4 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-semibold">
-                Pause Trading
-              </button>
-              <button className="px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold">
-                Pause Withdrawals
-              </button>
-              <button className="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold">
-                Emergency Shutdown
-              </button>
-            </div>
-            <p className="text-yellow-400 text-sm mt-4">
-              ⚠️ Use these controls only in emergency situations
-            </p>
+            <PermissionGuard requiredPermission={Permission.GOVERNANCE}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button className="px-4 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-semibold">
+                  Pause Trading
+                </button>
+                <button className="px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold">
+                  Pause Withdrawals
+                </button>
+                <button className="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold">
+                  Emergency Shutdown
+                </button>
+              </div>
+              <p className="text-yellow-400 text-sm mt-4">
+                ⚠️ Use these controls only in emergency situations
+              </p>
+            </PermissionGuard>
           </div>
         </div>
       </div>

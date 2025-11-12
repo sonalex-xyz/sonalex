@@ -2,20 +2,28 @@
 
 This document defines the security model, access control, and authorized actions for the Sonalex admin dashboard.
 
+## ⚠️ Important: Percolator is Permissionless
+
+**Percolator uses a permissionless architecture** where anyone can create slabs/AMMs without governance approval. See [GOVERNANCE_MODEL.md](./GOVERNANCE_MODEL.md) for full details.
+
+- ✅ **Governance controls** protocol-wide safety (margin, oracles, insurance)
+- ❌ **Governance does NOT control** individual slab creation (permissionless!)
+- ✅ **LPs create slabs** themselves (self-service)
+- ✅ **Users choose slabs** to trade on (free market)
+
 ## Security Model Overview
 
-Percolator uses a **two-tier authority model**:
+Percolator uses a **two-tier authority model** for **protocol-level operations**:
 
 ```
 ┌─────────────────────────────────────────┐
 │         Governance Authority            │
-│  (Full control - protocol parameters)   │
+│  (Protocol-wide parameters only)        │
 └──────────────┬──────────────────────────┘
                │
-               ├─ Update risk parameters
-               ├─ Register slabs/AMMs
+               ├─ Update global risk parameters
+               ├─ Manage oracles
                ├─ Emergency controls
-               ├─ Fee configuration
                └─ Registry management
 
 ┌─────────────────────────────────────────┐
@@ -26,6 +34,16 @@ Percolator uses a **two-tier authority model**:
                ├─ Top up insurance fund
                ├─ Withdraw insurance surplus
                └─ View insurance stats
+
+┌─────────────────────────────────────────┐
+│      Anyone (Permissionless)            │
+│  (Slab/AMM creation - no approval)      │
+└──────────────┬──────────────────────────┘
+               │
+               ├─ Create slabs
+               ├─ Create AMMs
+               ├─ Set slab-specific fees
+               └─ Provide liquidity
 ```
 
 ### Authority Accounts
@@ -110,20 +128,6 @@ await client.updateRiskParameters(governanceWallet, {
 await client.updateOraclePrice(adminWallet, oracleAccount, price, confidence);
 ```
 
-#### Slab/AMM Registration
-✅ **Register New Slabs**
-- Add new order books to registry
-
-✅ **Register New AMMs**
-- Add new liquidity pools
-
-**Instruction:** RegisterSlab
-**Authority Check:** `registry.governance == signer`
-
-```typescript
-await client.registerSlab(governanceWallet, slabAccount);
-```
-
 #### Emergency Controls (Extreme Caution)
 ⚠️ **Pause Trading**
 - Halt all trading activity
@@ -145,13 +149,11 @@ await client.haltTrading(governanceWallet, slabAccount);
 await client.resumeTrading(governanceWallet, slabAccount);
 ```
 
-#### Fee Configuration
-✅ **Update Trading Fees**
-- Maker fee (bps)
-- Taker fee (bps)
-- AMM fee (bps)
+#### Fee Configuration (Not Governance Controlled)
 
-**Note:** Fee structure is currently hardcoded in matchers. For MVP, fees are set at deployment. Full governance control requires matcher program updates.
+**Note:** ❌ Fees are **NOT governance controlled** in the permissionless model. Each slab owner sets their own fees. Governance may set protocol-wide fee caps in the future, but individual slabs set fees within those caps.
+
+See [GOVERNANCE_MODEL.md](./GOVERNANCE_MODEL.md) for details on the permissionless architecture.
 
 ### 3. **Insurance Authority - Insurance Fund Only**
 
@@ -274,7 +276,7 @@ export default function AdminPage() {
 Every admin action is validated on-chain:
 
 ```rust
-// Example from register_slab.rs:48-59
+// Example from risk parameter updates
 // SECURITY: Verify governance is signer
 if !governance.is_signer() {
     msg!("Error: Governance must be signer");
@@ -408,15 +410,13 @@ async function updateParameters(params) {
 ├─ Liquidation bands
 └─ Oracle staleness
 
-🏦 Exchange Configuration
-├─ Register slabs/AMMs
-├─ Fee settings (future)
-└─ Protocol parameters
+🏦 Protocol Configuration
+└─ Global protocol parameters
 
 🚨 Emergency Controls
-├─ Pause trading
-├─ Pause withdrawals
-└─ Emergency shutdown
+├─ Pause trading (future)
+├─ Pause withdrawals (future)
+└─ Emergency shutdown (future)
 
 🔮 Oracle Management
 ├─ Create oracles
@@ -440,12 +440,13 @@ async function updateParameters(params) {
 | **View Activity** | ✅ | ✅ | ✅ |
 | **Monitor Oracles** | ✅ | ✅ | ✅ |
 | **Update Risk Params** | ✅ | ❌ | ❌ |
-| **Register Slab/AMM** | ✅ | ❌ | ❌ |
 | **Create Oracle** | ✅ | ❌ | ❌ |
 | **Update Oracle Price** | ✅ | ❌ | ❌ |
 | **Emergency Controls** | ✅ | ❌ | ❌ |
 | **Top Up Insurance** | ❌ | ✅ | ❌ |
 | **Withdraw Insurance** | ❌ | ✅ | ❌ |
+
+**Note:** Slab/AMM creation is permissionless and not listed here - anyone can create slabs without governance approval.
 
 ## Initial Setup
 

@@ -359,6 +359,51 @@ export interface VenuePnl {
 }
 
 // ============================================================================
+// Oracle Types
+// ============================================================================
+
+/**
+ * Price Oracle state
+ * Matches: oracle/state.rs::PriceOracle
+ */
+export interface PriceOracle {
+  /** Magic bytes for validation */
+  magic: bigint;
+  /** Version */
+  version: number;
+  /** Bump seed for PDA */
+  bump: number;
+  /** Authority that can update prices */
+  authority: PublicKey;
+  /** Instrument this oracle is for */
+  instrument: PublicKey;
+  /** Current price (scaled by 1_000_000) */
+  price: bigint;
+  /** Last update timestamp (Unix timestamp) */
+  timestamp: bigint;
+  /** Price confidence interval (scaled by 1_000_000) */
+  confidence: bigint;
+}
+
+/**
+ * Oracle status for monitoring
+ */
+export interface OracleStatus {
+  /** Oracle account address */
+  address: PublicKey;
+  /** Instrument name/symbol */
+  instrument: string;
+  /** Oracle data */
+  data: PriceOracle;
+  /** Age in seconds since last update */
+  age: number;
+  /** Is oracle stale (exceeds max staleness) */
+  isStale: boolean;
+  /** Status classification */
+  status: 'healthy' | 'warning' | 'stale' | 'error';
+}
+
+// ============================================================================
 // Instruction Parameters
 // ============================================================================
 

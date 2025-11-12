@@ -1,3 +1,5 @@
+import OracleMonitor from './components/OracleMonitor';
+
 export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 p-8">
@@ -159,6 +161,11 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Oracle Monitor */}
+          <div className="lg:col-span-3 bg-gray-800 border border-gray-700 rounded-lg p-6">
+            <OracleMonitor />
           </div>
 
           {/* Circuit Breakers */}

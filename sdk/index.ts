@@ -58,6 +58,8 @@ export type {
   Vault,
   LpSeat,
   VenuePnl,
+  PriceOracle,
+  OracleStatus,
   DepositParams,
   WithdrawParams,
   PlaceOrderParams,
@@ -98,3 +100,11 @@ export {
   createRouterReleaseInstruction,
   createLiquidateUserInstruction,
 } from './instructions/router';
+
+export {
+  createInitializeOracleInstructions,
+  createUpdatePriceInstruction,
+  createBatchUpdatePriceInstructions,
+  OracleInstruction,
+  PRICE_ORACLE_SIZE,
+} from './instructions/oracle';

@@ -1,8 +1,9 @@
 'use client';
 
 import { useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Connection, clusterApiUrl } from '@solana/web3.js';
 import { useEffect, useState, ReactNode } from 'react';
+import { hasGovernancePermission, isSquadsMultisig } from '@/lib/multisig';
 
 /**
  * Permission levels for admin dashboard
@@ -53,6 +54,12 @@ export function PermissionGuard({
       }
 
       try {
+        // Get connection
+        const connection = new Connection(
+          process.env.NEXT_PUBLIC_RPC_URL || clusterApiUrl('devnet'),
+          'confirmed'
+        );
+
         // TODO: Fetch registry from blockchain to check authorities
         // For now, use environment variables (replace with actual on-chain check)
         const governanceWallet = process.env.NEXT_PUBLIC_GOVERNANCE_WALLET
@@ -64,15 +71,29 @@ export function PermissionGuard({
           : null;
 
         if (requiredPermission === Permission.GOVERNANCE) {
-          setHasPermission(
-            governanceWallet !== null &&
-            wallet.publicKey.equals(governanceWallet)
-          );
+          if (governanceWallet !== null) {
+            // Check permission - supports both single wallet AND multisig
+            const permitted = await hasGovernancePermission(
+              connection,
+              governanceWallet,
+              wallet.publicKey
+            );
+            setHasPermission(permitted);
+          } else {
+            setHasPermission(false);
+          }
         } else if (requiredPermission === Permission.INSURANCE) {
-          setHasPermission(
-            insuranceAuthority !== null &&
-            wallet.publicKey.equals(insuranceAuthority)
-          );
+          if (insuranceAuthority !== null) {
+            // Check permission - supports both single wallet AND multisig
+            const permitted = await hasGovernancePermission(
+              connection,
+              insuranceAuthority,
+              wallet.publicKey
+            );
+            setHasPermission(permitted);
+          } else {
+            setHasPermission(false);
+          }
         }
       } catch (error) {
         console.error('Error checking permission:', error);
@@ -145,6 +166,12 @@ export function usePermissions() {
       }
 
       try {
+        // Get connection
+        const connection = new Connection(
+          process.env.NEXT_PUBLIC_RPC_URL || clusterApiUrl('devnet'),
+          'confirmed'
+        );
+
         // TODO: Fetch from blockchain
         const governanceWallet = process.env.NEXT_PUBLIC_GOVERNANCE_WALLET
           ? new PublicKey(process.env.NEXT_PUBLIC_GOVERNANCE_WALLET)
@@ -154,9 +181,18 @@ export function usePermissions() {
           ? new PublicKey(process.env.NEXT_PUBLIC_INSURANCE_AUTHORITY)
           : null;
 
+        // Check both permissions (supports single wallet AND multisig)
+        const isGovernance = governanceWallet !== null
+          ? await hasGovernancePermission(connection, governanceWallet, wallet.publicKey)
+          : false;
+
+        const isInsuranceAuth = insuranceAuthority !== null
+          ? await hasGovernancePermission(connection, insuranceAuthority, wallet.publicKey)
+          : false;
+
         setPermissions({
-          isGovernance: governanceWallet !== null && wallet.publicKey.equals(governanceWallet),
-          isInsuranceAuth: insuranceAuthority !== null && wallet.publicKey.equals(insuranceAuthority),
+          isGovernance,
+          isInsuranceAuth,
           loading: false,
         });
       } catch (error) {

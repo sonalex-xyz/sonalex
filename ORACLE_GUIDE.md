@@ -2,6 +2,17 @@
 
 This guide explains how to manage price oracles for your Percolator exchange.
 
+## ⚠️ Important: Oracles Are NOT a Separate Program
+
+**Percolator does NOT deploy a separate oracle program!** Oracle accounts are created and managed by the **Router program**.
+
+When this guide mentions "oracle program", it refers to oracle functionality within the Router program, not a standalone deployable program.
+
+**What actually gets deployed:**
+- ✅ Router Program (includes oracle management)
+- ✅ Slab Program
+- ✅ AMM Program
+
 ## Overview
 
 **Oracles** provide price feeds for all instruments (BTC-PERP, ETH-PERP, SOL-PERP, etc.) traded on your exchange. They are critical infrastructure that YOU (the exchange operator) must maintain.

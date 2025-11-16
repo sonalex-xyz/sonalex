@@ -98,9 +98,11 @@ Make sure your browser wallet is connected to localhost:
 3. Approve connection
 4. You should see your wallet connected!
 
-## Optional: Deploy Percolator Programs
+## Deploy and Initialize Percolator
 
 If you have the Percolator repository and want to test with real programs:
+
+### Step 1: Deploy Programs
 
 ```bash
 # Terminal 1: Test validator (already running)
@@ -119,19 +121,45 @@ anchor deploy --provider.cluster localnet
 solana address -k target/deploy/router-keypair.json
 solana address -k target/deploy/slab-keypair.json
 solana address -k target/deploy/amm-keypair.json
-
-# Copy these addresses to your .env.local
 ```
 
-Update `.env.local` with the deployed program IDs:
+### Step 2: Initialize Protocol with Percolator CLI
+
+The Percolator CLI creates the registry and insurance vault accounts:
 
 ```bash
+# Still in percolator directory
+cargo run --bin percolator -- initialize \
+  --governance <your-wallet-pubkey> \
+  --insurance-authority <your-wallet-pubkey> \
+  --cluster localnet
+
+# CLI will output:
+# ✅ Registry created: <registry-address>
+# ✅ Insurance vault created: <vault-address>
+# ✅ Protocol initialized!
+#
+# Add these to your Sonalex .env.local:
+# NEXT_PUBLIC_REGISTRY_ADDRESS=<registry-address>
+# NEXT_PUBLIC_INSURANCE_VAULT=<vault-address>
+```
+
+### Step 3: Update Sonalex Configuration
+
+Update `.env.local` with all the addresses:
+
+```bash
+# Program IDs (from anchor deploy)
 NEXT_PUBLIC_ROUTER_PROGRAM_ID=<router-program-id>
 NEXT_PUBLIC_SLAB_PROGRAM_ID=<slab-program-id>
 NEXT_PUBLIC_AMM_PROGRAM_ID=<amm-program-id>
+
+# Account addresses (from percolator CLI initialize)
+NEXT_PUBLIC_REGISTRY_ADDRESS=<registry-address>
+NEXT_PUBLIC_INSURANCE_VAULT=<vault-address>
 ```
 
-Restart Sonalex (`npm run dev`) to pick up the new program IDs.
+Restart Sonalex (`npm run dev`) to pick up the configuration.
 
 ## Full Development Workflow
 
@@ -141,12 +169,24 @@ Here's the complete terminal setup:
 # Terminal 1: Local validator
 solana-test-validator --reset --log
 
-# Terminal 2: Percolator (if deploying)
+# Terminal 2: Deploy and initialize Percolator
 cd ../percolator
+
+# Build and deploy
+anchor build
 anchor deploy --provider.cluster localnet
+
+# Initialize protocol (creates registry + insurance vault)
+cargo run --bin percolator -- initialize \
+  --governance $(solana address) \
+  --insurance-authority $(solana address) \
+  --cluster localnet
+
+# Copy the output addresses to sonalex/.env.local
 
 # Terminal 3: Sonalex
 cd ../sonalex
+# Update .env.local with addresses from CLI output
 npm run dev
 ```
 
@@ -226,15 +266,34 @@ solana airdrop 10 -u localhost
 3. Clear site data (browser dev tools → Application → Clear site data)
 4. Try connecting again
 
+### Issue: "Registry not found" or similar errors
+
+**Fix:** You need to initialize the protocol using Percolator CLI:
+
+```bash
+cd ../percolator
+cargo run --bin percolator -- initialize \
+  --governance $(solana address) \
+  --cluster localnet
+```
+
+Then copy the output addresses to `.env.local`.
+
 ### Issue: Programs not found
 
-**Fix:** You're using placeholder program IDs. Either:
-- Deploy Percolator and use real program IDs, OR
-- Continue with placeholders (some features won't work)
+**Fix:** You're using placeholder program IDs. Deploy Percolator:
+
+```bash
+cd ../percolator
+anchor build
+anchor deploy --provider.cluster localnet
+```
+
+Then update `.env.local` with the real program IDs.
 
 ### Issue: Oracle errors
 
-Remember: Oracles are NOT a separate program! If you deployed Percolator, oracle accounts are created by the Router program.
+Remember: Oracles are NOT a separate program! If you deployed Percolator, oracle accounts are created by the Router program using the admin UI.
 
 ## Resetting Everything
 

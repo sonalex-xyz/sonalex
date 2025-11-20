@@ -2,7 +2,7 @@
 
 import OracleMonitor from './components/OracleMonitor';
 import { PermissionGuard, Permission, AuthorityBadge } from './components/PermissionGuard';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletButton } from './components/WalletButton';
 
 export default function AdminPage() {
   return (
@@ -16,7 +16,7 @@ export default function AdminPage() {
               <AuthorityBadge />
             </div>
           </div>
-          <WalletMultiButton />
+          <WalletButton />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

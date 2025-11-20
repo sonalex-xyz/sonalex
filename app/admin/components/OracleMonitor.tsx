@@ -46,22 +46,22 @@ export default function OracleMonitor() {
       },
       {
         instrument: 'ETH-PERP',
-        address: new PublicKey('22222222222222222222222222222222'),
+        address: new PublicKey('2222222222222222222222222222222222222222222'),
         price: 3200_000000n, // $3,200
         timestamp: Date.now() / 1000 - 45, // 45 seconds ago
         confidence: 10_000000n, // $10 confidence
-        authority: new PublicKey('11111111111111111111111111111111'),
+        authority: new PublicKey('11111111111111111111111111111111111111111111'),
         isStale: false,
         age: 45,
         status: 'warning',
       },
       {
         instrument: 'SOL-PERP',
-        address: new PublicKey('33333333333333333333333333333333'),
+        address: new PublicKey('3333333333333333333333333333333333333333333'),
         price: 145_000000n, // $145
         timestamp: Date.now() / 1000 - 90, // 90 seconds ago
         confidence: 1_000000n, // $1 confidence
-        authority: new PublicKey('11111111111111111111111111111111'),
+        authority: new PublicKey('11111111111111111111111111111111111111111111'),
         isStale: true,
         age: 90,
         status: 'stale',

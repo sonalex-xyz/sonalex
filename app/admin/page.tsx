@@ -3,6 +3,7 @@
 import OracleMonitor from './components/OracleMonitor';
 import { PermissionGuard, Permission, AuthorityBadge } from './components/PermissionGuard';
 import { WalletButton } from './components/WalletButton';
+import { RiskParametersPanel } from './components/RiskParametersPanel';
 
 export default function AdminPage() {
   return (
@@ -66,50 +67,7 @@ export default function AdminPage() {
           </div>
 
           {/* Risk Parameters - Governance Only */}
-          <div className="lg:col-span-2 bg-gray-800 border border-gray-700 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Risk Parameters</h2>
-            <PermissionGuard requiredPermission={Permission.GOVERNANCE}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Initial Margin Ratio (%)</label>
-                    <input
-                      type="number"
-                      defaultValue="10"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Maintenance Margin Ratio (%)</label>
-                    <input
-                      type="number"
-                      defaultValue="5"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Liquidation Band (bps)</label>
-                    <input
-                      type="number"
-                      defaultValue="200"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Max Oracle Staleness (s)</label>
-                    <input
-                      type="number"
-                      defaultValue="60"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                    />
-                  </div>
-                </div>
-                <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">
-                  Update Parameters
-                </button>
-              </div>
-            </PermissionGuard>
-          </div>
+          <RiskParametersPanel />
 
           {/* Fee Configuration */}
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
